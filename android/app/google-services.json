@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1071251154959",
+    "project_id": "tracking-maps-89ff5",
+    "storage_bucket": "tracking-maps-89ff5.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1071251154959:android:687887be7a0df3571d1b7a",
+        "android_client_info": {
+          "package_name": "com.example.driver_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC8OdbSETIglB7Vc91U-oOaP8oWg9siDRU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

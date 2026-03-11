@@ -1,0 +1,80 @@
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import '../models/order.dart';
+
+class ApiService {
+
+  static const String baseUrl = "http://10.0.2.2:8000/api/";
+
+  // LOGIN
+  static Future<Map<String, dynamic>?> login(
+      String email,
+      String password
+      ) async {
+
+    final response = await http.post(
+      Uri.parse("${baseUrl}login"),
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode({
+        "email": email,
+        "password": password
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    }
+
+    return null;
+  }
+
+  // GET DRIVER ORDERS
+  static Future<List<Order>> getDriverOrders(int sopirId) async {
+
+    final response = await http.get(
+      Uri.parse("${baseUrl}driver/orders/$sopirId"),
+    );
+
+    if (response.statusCode == 200) {
+
+      List data = jsonDecode(response.body);
+
+      return data.map((e) => Order.fromJson(e)).toList();
+    }
+
+    return [];
+  }
+
+  // UPDATE STATUS
+  static Future<bool> updateStatus(int orderId) async {
+
+    final response = await http.post(
+      Uri.parse("${baseUrl}driver/update-status/$orderId"),
+    );
+
+    return response.statusCode == 200;
+  }
+
+  // DRIVER STATS
+  static Future<Map<String, int>> getDriverStats(int sopirId) async {
+
+    final response = await http.get(
+      Uri.parse("${baseUrl}driver/stats/$sopirId"),
+    );
+
+    if (response.statusCode == 200) {
+
+      final data = jsonDecode(response.body);
+
+      return {
+        "hari_ini": data["hari_ini"] ?? 0,
+        "bulan_ini": data["bulan_ini"] ?? 0
+      };
+    }
+
+    return {
+      "hari_ini": 0,
+      "bulan_ini": 0
+    };
+  }
+}
