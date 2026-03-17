@@ -1,20 +1,22 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'firebase_options.dart';
-
 import 'screens/login_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/order_screen.dart';
 import 'screens/tracking_screen.dart';
 import 'screens/profile_screen.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
+import 'services/location_service.dart';
 
-Future<void> main() async {
+import 'app_theme.dart';
+
+final themeModeNotifier = ValueNotifier<ThemeMode>(ThemeMode.light);
+
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-
   runApp(const MyApp());
 }
 
@@ -23,16 +25,18 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Driver App',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
-        useMaterial3: true,
-      ),
-
-      // mulai dari login
-      home: const LoginScreen(),
+    return ValueListenableBuilder<ThemeMode>(
+      valueListenable: themeModeNotifier,
+      builder: (context, themeMode, _) {
+        return MaterialApp(
+          title: 'Lancar Driver',
+          debugShowCheckedModeBanner: false,
+          theme: AppTheme.lightTheme,
+          darkTheme: AppTheme.darkTheme,
+          themeMode: themeMode,
+          home: const LoginScreen(),
+        );
+      },
     );
   }
 }
@@ -45,8 +49,13 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
-
   int selectedIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    LocationService().init();
+  }
 
   final List<Widget> pages = const [
     HomeScreen(),
@@ -55,43 +64,30 @@ class _MainScreenState extends State<MainScreen> {
     ProfileScreen(),
   ];
 
-  void onItemTapped(int index) {
-    setState(() {
-      selectedIndex = index;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: pages[selectedIndex],
-
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: selectedIndex,
-        onTap: onItemTapped,
-        type: BottomNavigationBarType.fixed,
+        onTap: (index) => setState(() => selectedIndex = index),
         items: const [
-
           BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: "Home",
+            icon: Icon(Icons.home_rounded),
+            label: 'Beranda',
           ),
-
           BottomNavigationBarItem(
-            icon: Icon(Icons.list),
-            label: "Pesanan",
+            icon: Icon(Icons.local_shipping_rounded),
+            label: 'Pesanan',
           ),
-
           BottomNavigationBarItem(
-            icon: Icon(Icons.location_on),
-            label: "Tracking",
+            icon: Icon(Icons.location_on_rounded),
+            label: 'Tracking',
           ),
-
           BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: "Profil",
+            icon: Icon(Icons.person_rounded),
+            label: 'Profil',
           ),
-
         ],
       ),
     );

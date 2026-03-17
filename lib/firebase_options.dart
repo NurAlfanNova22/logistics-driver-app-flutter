@@ -50,19 +50,22 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyC8OdbSETIglB7Vc91U-oOaP8oWg9siDRU',
-    appId: '1:1071251154959:android:687887be7a0df3571d1b7a',
-    messagingSenderId: '1071251154959',
-    projectId: 'tracking-maps-89ff5',
-    storageBucket: 'tracking-maps-89ff5.firebasestorage.app',
+    apiKey: 'AIzaSyB7d6z6TGykKlQKobLAioAPt5OqUl3Sb20',
+    appId: '1:441793358853:android:924c34007d08419b6dc06c',
+    messagingSenderId: '441793358853',
+    projectId: 'lacar-ekspedisi',
+    databaseURL: 'https://lacar-ekspedisi-default-rtdb.asia-southeast1.firebasedatabase.app',
+    storageBucket: 'lacar-ekspedisi.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyDv-1lXhFNL6phWxDgO1PHoqTRSXQOAEs4',
-    appId: '1:1071251154959:ios:2b6313b14c08f10e1d1b7a',
-    messagingSenderId: '1071251154959',
-    projectId: 'tracking-maps-89ff5',
-    storageBucket: 'tracking-maps-89ff5.firebasestorage.app',
-    iosBundleId: 'com.example.driverApp',
+    apiKey: 'AIzaSyDbQZAajFiChSa-XiCqOJZJcJSEgWOMFEM',
+    appId: '1:441793358853:ios:cb9f4a2fe5efce296dc06c',
+    messagingSenderId: '441793358853',
+    projectId: 'lacar-ekspedisi',
+    databaseURL: 'https://lacar-ekspedisi-default-rtdb.asia-southeast1.firebasedatabase.app',
+    storageBucket: 'lacar-ekspedisi.firebasestorage.app',
+    iosBundleId: 'com.example.ekspedisiMobile',
   );
+
 }

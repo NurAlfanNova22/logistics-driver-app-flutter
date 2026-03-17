@@ -8,17 +8,16 @@ class ApiService {
 
   // LOGIN
   static Future<Map<String, dynamic>?> login(
-      String email,
-      String password
-      ) async {
+    String email,
+    String password
+  ) async {
 
     final response = await http.post(
-      Uri.parse("${baseUrl}login"),
-      headers: {"Content-Type": "application/json"},
-      body: jsonEncode({
+      Uri.parse("${baseUrl}driver/login"),
+      body: {
         "email": email,
         "password": password
-      }),
+      },
     );
 
     if (response.statusCode == 200) {
@@ -76,5 +75,22 @@ class ApiService {
       "hari_ini": 0,
       "bulan_ini": 0
     };
+  }
+
+  // ADD CHECKPOINT
+  static Future<void> addCheckpoint(int orderId, String lokasi, double lat, double lng) async {
+    try {
+      await http.post(
+        Uri.parse("${baseUrl}driver/add-checkpoint"),
+        body: {
+          "pesanan_id": orderId.toString(),
+          "lokasi": lokasi,
+          "lat": lat.toString(),
+          "lng": lng.toString()
+        },
+      );
+    } catch (e) {
+      print('Error push checkpoint: $e');
+    }
   }
 }
