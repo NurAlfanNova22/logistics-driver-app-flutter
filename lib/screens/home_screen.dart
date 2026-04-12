@@ -12,7 +12,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen>
     with SingleTickerProviderStateMixin {
-  bool isOnline = true;
+  bool isOnline = false;
   int hariIni = 0;
   int bulanIni = 0;
   bool isLoading = true;
@@ -48,6 +48,7 @@ class _HomeScreenState extends State<HomeScreen>
         setState(() {
           hariIni = data['hari_ini'] ?? 0;
           bulanIni = data['bulan_ini'] ?? 0;
+          isOnline = data['is_online'] ?? false;
           isLoading = false;
         });
       }
@@ -175,8 +176,23 @@ class _HomeScreenState extends State<HomeScreen>
                             ),
                             Switch(
                               value: isOnline,
-                              onChanged: (val) =>
-                                  setState(() => isOnline = val),
+                              onChanged: (val) async {
+                                final oldVal = isOnline;
+                                setState(() => isOnline = val);
+                                
+                                try {
+                                  SharedPreferences prefs = await SharedPreferences.getInstance();
+                                  int sopirId = prefs.getInt('sopir_id') ?? 0;
+                                  await ApiService.toggleOnlineStatus(sopirId, val);
+                                } catch (e) {
+                                  if (mounted) {
+                                    setState(() => isOnline = oldVal);
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(content: Text('Gagal menyinkronkan status online.')),
+                                    );
+                                  }
+                                }
+                              },
                             ),
                           ],
                         ),

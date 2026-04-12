@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'screens/login_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/order_screen.dart';
 import 'screens/tracking_screen.dart';
 import 'screens/profile_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'services/location_service.dart';
@@ -34,7 +36,23 @@ class MyApp extends StatelessWidget {
           theme: AppTheme.lightTheme,
           darkTheme: AppTheme.darkTheme,
           themeMode: themeMode,
-          home: const LoginScreen(),
+          home: FutureBuilder<int?>(
+            future: SharedPreferences.getInstance().then((prefs) => prefs.getInt('sopir_id')),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return Scaffold(
+                  backgroundColor: AppColors.primary,
+                  body: Center(
+                    child: CircularProgressIndicator(color: Colors.white),
+                  ),
+                );
+              }
+              if (snapshot.hasData && snapshot.data != null) {
+                return const MainScreen();
+              }
+              return const LoginScreen();
+            },
+          ),
         );
       },
     );
@@ -50,6 +68,7 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   int selectedIndex = 0;
+  DateTime? _lastPressedAt;
 
   @override
   void initState() {
@@ -66,8 +85,33 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: pages[selectedIndex],
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) async {
+        if (didPop) return;
+
+        if (selectedIndex != 0) {
+          setState(() => selectedIndex = 0);
+          return;
+        }
+
+        final now = DateTime.now();
+        if (_lastPressedAt == null ||
+            now.difference(_lastPressedAt!) > const Duration(seconds: 2)) {
+          _lastPressedAt = now;
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Tekan sekali lagi untuk keluar'),
+              duration: Duration(seconds: 2),
+            ),
+          );
+          return;
+        }
+        
+        SystemNavigator.pop();
+      },
+      child: Scaffold(
+        body: pages[selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: selectedIndex,
         onTap: (index) => setState(() => selectedIndex = index),
@@ -90,6 +134,7 @@ class _MainScreenState extends State<MainScreen> {
           ),
         ],
       ),
+    ),
     );
   }
 }

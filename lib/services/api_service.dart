@@ -4,7 +4,7 @@ import '../models/order.dart';
 
 class ApiService {
 
-  static const String baseUrl = "http://192.168.0.112:8000/api/";
+  static const String baseUrl = "http://192.168.1.40:8000/api/";
 
   // LOGIN
   static Future<Map<String, dynamic>?> login(
@@ -55,7 +55,7 @@ class ApiService {
   }
 
   // DRIVER STATS
-  static Future<Map<String, int>> getDriverStats(int sopirId) async {
+  static Future<Map<String, dynamic>> getDriverStats(int sopirId) async {
 
     final response = await http.get(
       Uri.parse("${baseUrl}driver/stats/$sopirId"),
@@ -67,14 +67,32 @@ class ApiService {
 
       return {
         "hari_ini": data["hari_ini"] ?? 0,
-        "bulan_ini": data["bulan_ini"] ?? 0
+        "bulan_ini": data["bulan_ini"] ?? 0,
+        "is_online": data["is_online"] ?? false
       };
     }
 
     return {
       "hari_ini": 0,
-      "bulan_ini": 0
+      "bulan_ini": 0,
+      "is_online": false
     };
+  }
+
+  // TOGGLE ONLINE
+  static Future<bool> toggleOnlineStatus(int sopirId, bool isOnline) async {
+    try {
+      final response = await http.post(
+        Uri.parse("${baseUrl}driver/toggle-online"),
+        body: {
+          "sopir_id": sopirId.toString(),
+          "is_online": isOnline ? "1" : "0"
+        },
+      );
+      return response.statusCode == 200;
+    } catch (e) {
+      return false;
+    }
   }
 
   // ADD CHECKPOINT
