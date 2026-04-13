@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 import 'screens/login_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/order_screen.dart';
-import 'screens/tracking_screen.dart';
 import 'screens/profile_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -79,7 +78,6 @@ class _MainScreenState extends State<MainScreen> {
   final List<Widget> pages = const [
     HomeScreen(),
     OrdersScreen(),
-    TrackingScreen(),
     ProfileScreen(),
   ];
 
@@ -123,10 +121,6 @@ class _MainScreenState extends State<MainScreen> {
           BottomNavigationBarItem(
             icon: Icon(Icons.local_shipping_rounded),
             label: 'Pesanan',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.location_on_rounded),
-            label: 'Tracking',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person_rounded),

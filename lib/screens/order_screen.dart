@@ -65,7 +65,7 @@ class _OrdersScreenState extends State<OrdersScreen> with SingleTickerProviderSt
           unselectedLabelColor: context.textMutedColor,
           indicatorColor: AppColors.primary,
           indicatorWeight: 3,
-          labelStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
+          labelStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
           tabs: const [
             Tab(text: 'Daftar Aktif'),
             Tab(text: 'Riwayat Selesai'),
@@ -92,7 +92,7 @@ class _OrdersScreenState extends State<OrdersScreen> with SingleTickerProviderSt
           children: [
             Icon(Icons.inventory_2_outlined, size: 56, color: context.textMutedColor.withOpacity(0.5)),
             const SizedBox(height: 16),
-            Text('Tidak ada data pesanan', style: TextStyle(color: context.textSecondaryColor, fontSize: 16, fontWeight: FontWeight.w500)),
+            Text('Tidak ada data pesanan', style: TextStyle(color: context.textSecondaryColor, fontSize: 15, fontWeight: FontWeight.w500)),
           ],
         ),
       );
@@ -144,8 +144,8 @@ class _OrdersScreenState extends State<OrdersScreen> with SingleTickerProviderSt
                               Text(
                                 order.namaPabrik,
                                 style: TextStyle(
-                                  fontWeight: FontWeight.w800,
-                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 15,
                                   color: context.textPrimaryColor,
                                 ),
                                 overflow: TextOverflow.ellipsis,
@@ -155,7 +155,7 @@ class _OrdersScreenState extends State<OrdersScreen> with SingleTickerProviderSt
                                 children: [
                                   Icon(Icons.receipt_long_rounded, size: 14, color: context.textMutedColor),
                                   const SizedBox(width: 6),
-                                  Text(order.resi, style: TextStyle(fontSize: 12, color: context.textMutedColor, fontWeight: FontWeight.w700, letterSpacing: 0.5)),
+                                  Text(order.resi, style: TextStyle(fontSize: 12, color: context.textMutedColor, fontWeight: FontWeight.w600, letterSpacing: 0.5)),
                                 ],
                               ),
                             ],
@@ -211,7 +211,7 @@ class _OrdersScreenState extends State<OrdersScreen> with SingleTickerProviderSt
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(8)),
-      child: Text(text, style: TextStyle(color: fg, fontWeight: FontWeight.w800, fontSize: 10, letterSpacing: 0.5)),
+      child: Text(text, style: TextStyle(color: fg, fontWeight: FontWeight.w700, fontSize: 10, letterSpacing: 0.5)),
     );
   }
 

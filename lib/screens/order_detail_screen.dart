@@ -101,7 +101,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
       child: Column(
          crossAxisAlignment: CrossAxisAlignment.start,
          children: [
-            Text(title, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: context.textMutedColor, letterSpacing: 1.2)),
+            Text(title, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: context.textMutedColor, letterSpacing: 1.0)),
             const SizedBox(height: 16),
             ...children,
          ],
@@ -128,7 +128,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                children: [
                  Text(label, style: TextStyle(fontSize: 12, color: context.textMutedColor)),
                  const SizedBox(height: 4),
-                 Text(value, style: TextStyle(fontSize: isLarge ? 16 : 14, fontWeight: isLarge ? FontWeight.w700 : FontWeight.w600, color: context.textPrimaryColor)),
+                 Text(value, style: TextStyle(fontSize: isLarge ? 16 : 14, fontWeight: isLarge ? FontWeight.w600 : FontWeight.w500, color: context.textPrimaryColor)),
                ],
              ),
            ),
@@ -172,9 +172,9 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                         color: isCompleted ? AppColors.success : AppColors.primary
                      ),
                      const SizedBox(height: 12),
-                     Text(_currentOrder.statusPengiriman.toUpperCase(), style: TextStyle(fontWeight: FontWeight.w800, color: isCompleted ? AppColors.success : AppColors.primaryDark, fontSize: 16)),
+                     Text(_currentOrder.statusPengiriman.toUpperCase(), style: TextStyle(fontWeight: FontWeight.w700, color: isCompleted ? AppColors.success : AppColors.primaryDark, fontSize: 16)),
                      const SizedBox(height: 4),
-                     Text('NO RESI: ${_currentOrder.resi}', style: TextStyle(color: isCompleted ? AppColors.success : AppColors.primary, fontWeight: FontWeight.bold, letterSpacing: 0.5)),
+                     Text('NO RESI: ${_currentOrder.resi}', style: TextStyle(color: isCompleted ? AppColors.success : AppColors.primary, fontWeight: FontWeight.w600, letterSpacing: 0.5)),
                   ],
                 ),
               ),
@@ -207,7 +207,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                     elevation: 4,
                   ),
-                  child: Text(buttonText, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Colors.white)),
+                  child: Text(buttonText, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white)),
                )
             ),
         ),
