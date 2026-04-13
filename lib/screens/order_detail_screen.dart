@@ -40,6 +40,28 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
   }
 
   void _showConfirmDialog() {
+    if (_currentOrder.statusPengiriman == 'DALAM PERJALANAN') {
+       // Cooldown check for marking as completed
+       final diff = DateTime.now().toUtc().difference(_currentOrder.updatedAt.toUtc());
+       if (diff.inMinutes < 5) {
+          showDialog(
+             context: context,
+             builder: (c) => AlertDialog(
+                title: const Text('Perjalanan Masih Baru 🚀', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+                content: const Text('Anda baru saja memulai pengiriman ini kurang dari 5 menit yang lalu.\n\nSistem mengunci penyelesaian untuk sementara waktu. Mohon selesaikan dan antarkan muatan dengan aman baru ulangi konfirmasi Anda.'),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(c),
+                    child: Text('Baik, Mengerti', style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold)),
+                  ),
+                ]
+             )
+          );
+          return;
+       }
+    }
+
     final action = _currentOrder.statusPengiriman == 'MENUNGGU PICKUP'
         ? 'memeriksa kelengkapan muatan dan MEMULAI pengiriman'
         : 'MENYELESAIKAN pesanan ini';

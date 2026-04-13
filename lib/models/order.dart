@@ -9,6 +9,7 @@ class Order {
   final int berat;
   final String status;
   final String statusPengiriman;
+  final DateTime updatedAt;
 
   Order({
     required this.id,
@@ -20,6 +21,7 @@ class Order {
     required this.berat,
     required this.status,
     required this.statusPengiriman,
+    required this.updatedAt,
   });
 
   factory Order.fromJson(Map<String, dynamic> json) {
@@ -33,6 +35,7 @@ class Order {
       berat: json["berat"],
       status: json["status"],
       statusPengiriman: json["status_pengiriman"],
+      updatedAt: json["updated_at"] != null ? DateTime.parse(json["updated_at"]) : DateTime.now(),
     );
   }
 
