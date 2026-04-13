@@ -3,23 +3,32 @@ import '../services/api_service.dart';
 import '../models/order.dart';
 import '../app_theme.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../services/location_service.dart';
+import 'order_detail_screen.dart';
 
 class OrdersScreen extends StatefulWidget {
-  const OrdersScreen({super.key});
+  final int initialTabIndex;
+  const OrdersScreen({super.key, this.initialTabIndex = 0});
 
   @override
   State<OrdersScreen> createState() => _OrdersScreenState();
 }
 
-class _OrdersScreenState extends State<OrdersScreen> {
+class _OrdersScreenState extends State<OrdersScreen> with SingleTickerProviderStateMixin {
   List<Order> orders = [];
   bool isLoading = true;
+  late TabController _tabController;
 
   @override
   void initState() {
     super.initState();
+    _tabController = TabController(length: 2, vsync: this, initialIndex: widget.initialTabIndex);
     loadOrders();
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
   }
 
   Future<void> loadOrders() async {
@@ -38,202 +47,144 @@ class _OrdersScreenState extends State<OrdersScreen> {
     }
   }
 
-  Future<void> updateStatus(int orderId) async {
-    final success = await ApiService.updateStatus(orderId);
-    if (success) {
-      await loadOrders();
-      LocationService().checkAndToggleTracking();
-    }
-  }
+  @override
+  Widget build(BuildContext context) {
+    // Filter data
+    final activeOrders = orders.where((o) => o.statusPengiriman != 'PESANAN TELAH DIKIRIM').toList();
+    final completedOrders = orders.where((o) => o.statusPengiriman == 'PESANAN TELAH DIKIRIM').toList();
 
-  void showConfirmDialog(Order order) {
-    final action = order.statusPengiriman == 'MENUNGGU PICKUP'
-        ? 'memulai pengiriman'
-        : 'menandai pesanan sebagai telah dikirim';
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Konfirmasi'),
-        content: Text('Apakah Anda yakin ingin $action?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text('Batal',
-                style: TextStyle(color: context.textSecondaryColor)),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              updateStatus(order.id);
-              Navigator.pop(context);
-            },
-            child: const Text('Ya, Lanjutkan'),
-          ),
-        ],
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Pesanan Saya'),
+        backgroundColor: context.surfaceColor,
+        foregroundColor: context.textPrimaryColor,
+        elevation: 0,
+        bottom: TabBar(
+          controller: _tabController,
+          labelColor: AppColors.primary,
+          unselectedLabelColor: context.textMutedColor,
+          indicatorColor: AppColors.primary,
+          indicatorWeight: 3,
+          labelStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
+          tabs: const [
+            Tab(text: 'Daftar Aktif'),
+            Tab(text: 'Riwayat Selesai'),
+          ],
+        ),
       ),
+      body: isLoading
+          ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
+          : TabBarView(
+              controller: _tabController,
+              children: [
+                _buildOrderList(activeOrders),
+                _buildOrderList(completedOrders),
+              ],
+            ),
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Pesanan Saya')),
-      body: isLoading
-          ? const Center(
-              child: CircularProgressIndicator(color: AppColors.primary))
-          : orders.isEmpty
-              ? Center(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.local_shipping_outlined,
-                          size: 56, color: context.textMutedColor),
-                      const SizedBox(height: 12),
-                      Text('Belum ada pesanan aktif',
-                          style: TextStyle(
-                              color: context.textSecondaryColor)),
-                    ],
-                  ),
-                )
-              : RefreshIndicator(
-                  color: AppColors.primary,
-                  onRefresh: loadOrders,
-                  child: ListView.builder(
-                    padding:
-                        const EdgeInsets.fromLTRB(16, 16, 16, 24),
-                    itemCount: orders.length,
-                    itemBuilder: (context, index) {
-                      final order = orders[index];
-                      final isCompleted =
-                          order.statusPengiriman == 'PESANAN TELAH DIKIRIM';
-                      final buttonText =
-                          order.statusPengiriman == 'MENUNGGU PICKUP'
-                              ? 'Mulai Pengiriman'
-                              : 'Tandai Telah Dikirim';
+  Widget _buildOrderList(List<Order> list) {
+    if (list.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.inventory_2_outlined, size: 56, color: context.textMutedColor.withOpacity(0.5)),
+            const SizedBox(height: 16),
+            Text('Tidak ada data pesanan', style: TextStyle(color: context.textSecondaryColor, fontSize: 16, fontWeight: FontWeight.w500)),
+          ],
+        ),
+      );
+    }
 
-                      return Container(
-                        margin: const EdgeInsets.only(bottom: 12),
-                        decoration: BoxDecoration(
-                          color: context.surfaceColor,
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: context.borderColor),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // Header
-                            Padding(
-                              padding: const EdgeInsets.fromLTRB(16, 14, 16, 12),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
+    return RefreshIndicator(
+      color: AppColors.primary,
+      onRefresh: loadOrders,
+      child: ListView.builder(
+        padding: const EdgeInsets.fromLTRB(16, 20, 16, 24),
+        itemCount: list.length,
+        itemBuilder: (context, index) {
+          final order = list[index];
+
+          return GestureDetector(
+            onTap: () async {
+               final needsRefresh = await Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => OrderDetailScreen(order: order)),
+               );
+               if (needsRefresh == true) {
+                 loadOrders(); // Refresh after confirming in detail screen
+               }
+            },
+            child: Container(
+              margin: const EdgeInsets.only(bottom: 14),
+              decoration: BoxDecoration(
+                color: context.surfaceColor,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: context.borderColor),
+                boxShadow: [
+                  BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 8, offset: const Offset(0, 2))
+                ]
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Header
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                order.namaPabrik,
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w800,
+                                  fontSize: 16,
+                                  color: context.textPrimaryColor,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              const SizedBox(height: 6),
+                              Row(
                                 children: [
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          order.namaPabrik,
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.w600,
-                                            fontSize: 15,
-                                            color: context.textPrimaryColor,
-                                          ),
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                        const SizedBox(height: 2),
-                                        Row(
-                                          children: [
-                                            Icon(Icons.receipt_outlined,
-                                                size: 12,
-                                                color: context.textMutedColor),
-                                            const SizedBox(width: 4),
-                                            Text(
-                                              order.resi,
-                                              style: TextStyle(
-                                                  fontSize: 12,
-                                                  color: context.textMutedColor),
-                                            ),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  _statusBadge(order.statusPengiriman, context),
+                                  Icon(Icons.receipt_long_rounded, size: 14, color: context.textMutedColor),
+                                  const SizedBox(width: 6),
+                                  Text(order.resi, style: TextStyle(fontSize: 12, color: context.textMutedColor, fontWeight: FontWeight.w700, letterSpacing: 0.5)),
                                 ],
                               ),
-                            ),
-
-                            Divider(
-                                height: 1,
-                                color: context.borderColor),
-
-                            // Details
-                            Padding(
-                              padding:
-                                  const EdgeInsets.fromLTRB(16, 12, 16, 12),
-                              child: Column(
-                                children: [
-                                  _detailRow(
-                                      Icons.my_location_rounded,
-                                      'Dari',
-                                      order.alamatAsal,
-                                      context),
-                                  const SizedBox(height: 6),
-                                  _detailRow(
-                                      Icons.location_on_rounded,
-                                      'Tujuan',
-                                      order.alamatTujuan,
-                                      context),
-                                  const SizedBox(height: 6),
-                                  _detailRow(
-                                      Icons.inventory_2_outlined,
-                                      'Barang',
-                                      '${order.jenisBarang} • ${order.berat} ton',
-                                      context),
-                                ],
-                              ),
-                            ),
-
-                            // Action button
-                            if (!isCompleted)
-                              Padding(
-                                padding:
-                                    const EdgeInsets.fromLTRB(16, 0, 16, 14),
-                                child: SizedBox(
-                                  width: double.infinity,
-                                  height: 44,
-                                  child: ElevatedButton(
-                                    onPressed: () => showConfirmDialog(order),
-                                    child: Text(buttonText),
-                                  ),
-                                ),
-                              ),
-
-                            if (isCompleted)
-                              Padding(
-                                padding:
-                                    const EdgeInsets.fromLTRB(16, 0, 16, 14),
-                                child: Row(
-                                  children: [
-                                    Icon(Icons.check_circle_rounded,
-                                        size: 16, color: AppColors.success),
-                                    const SizedBox(width: 6),
-                                    Text('Pengiriman selesai',
-                                        style: TextStyle(
-                                          fontSize: 13,
-                                          color: AppColors.success,
-                                          fontWeight: FontWeight.w500,
-                                        )),
-                                  ],
-                                ),
-                              ),
-                          ],
+                            ],
+                          ),
                         ),
-                      );
-                    },
+                        _statusBadge(order.statusPengiriman, context),
+                      ],
+                    ),
                   ),
-                ),
+
+                  Divider(height: 1, color: context.borderColor),
+
+                  // Details
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+                    child: Column(
+                      children: [
+                        _detailRow(Icons.place_rounded, 'Tujuan', order.alamatTujuan, context),
+                        const SizedBox(height: 10),
+                        _detailRow(Icons.scale_rounded, 'Muatan', '${order.jenisBarang} (${order.berat} ton)', context),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
     );
   }
 
@@ -245,44 +196,44 @@ class _OrdersScreenState extends State<OrdersScreen> {
       case 'dalam perjalanan':
         bg = AppColors.infoSurface;
         fg = AppColors.info;
-        text = 'AKTIF';
+        text = 'DI JALAN';
         break;
       case 'pesanan telah dikirim':
         bg = AppColors.successSurface;
         fg = AppColors.success;
-        text = 'DIKIRIM';
+        text = 'SELESAI';
         break;
       default:
         bg = AppColors.primarySurface;
         fg = AppColors.primary;
-        text = 'MENUNGGU';
+        text = 'MENUNGGU PICKUP';
     }
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration:
-          BoxDecoration(color: bg, borderRadius: BorderRadius.circular(8)),
-      child: Text(text,
-          style: TextStyle(
-              color: fg, fontWeight: FontWeight.w600, fontSize: 11)),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(8)),
+      child: Text(text, style: TextStyle(color: fg, fontWeight: FontWeight.w800, fontSize: 10, letterSpacing: 0.5)),
     );
   }
 
-  Widget _detailRow(
-      IconData icon, String label, String value, BuildContext context) {
+  Widget _detailRow(IconData icon, String label, String value, BuildContext context) {
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(icon, size: 13, color: context.textMutedColor),
-        const SizedBox(width: 6),
-        Text('$label: ',
-            style:
-                TextStyle(fontSize: 12, color: context.textMutedColor)),
+        Icon(icon, size: 16, color: context.textMutedColor),
+        const SizedBox(width: 8),
         Expanded(
-          child: Text(
-            value,
-            style: TextStyle(
-                fontSize: 12,
-                color: context.textSecondaryColor,
-                fontWeight: FontWeight.w500),
+          child: RichText(
+            text: TextSpan(
+              text: '$label: ',
+              style: TextStyle(fontSize: 13, color: context.textMutedColor, fontFamily: 'Inter', height: 1.4),
+              children: [
+                TextSpan(
+                  text: value,
+                  style: TextStyle(color: context.textPrimaryColor, fontWeight: FontWeight.w600),
+                )
+              ]
+            ),
+            maxLines: 2,
             overflow: TextOverflow.ellipsis,
           ),
         ),

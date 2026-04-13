@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../services/api_service.dart';
 import '../app_theme.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'order_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -261,7 +262,9 @@ class _HomeScreenState extends State<HomeScreen>
                       label: 'Lihat Pesanan Aktif',
                       subtitle: 'Daftar pengiriman yang harus dilakukan',
                       iconColor: AppColors.primary,
-                      onTap: () {},
+                      onTap: () {
+                         Navigator.push(context, MaterialPageRoute(builder: (_) => const OrdersScreen(initialTabIndex: 0)));
+                      },
                     ),
                     const SizedBox(height: 10),
                     _ActionTile(
@@ -269,7 +272,9 @@ class _HomeScreenState extends State<HomeScreen>
                       label: 'Riwayat Pengiriman',
                       subtitle: 'Pesanan yang sudah selesai',
                       iconColor: AppColors.success,
-                      onTap: () {},
+                      onTap: () {
+                         Navigator.push(context, MaterialPageRoute(builder: (_) => const OrdersScreen(initialTabIndex: 1)));
+                      },
                     ),
                     const SizedBox(height: 24),
                   ]),

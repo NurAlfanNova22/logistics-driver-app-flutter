@@ -4,7 +4,7 @@ import '../models/order.dart';
 
 class ApiService {
 
-  static const String baseUrl = "http://192.168.1.40:8000/api/";
+  static const String baseUrl = "https://lancarekspedisi.satcloud.tech/api/";
 
   // LOGIN
   static Future<Map<String, dynamic>?> login(
