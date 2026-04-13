@@ -182,7 +182,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
               _buildSection('INFORMASI MUATAN', [
                 _buildRow(Icons.business_rounded, 'Kustomer / Nama Pabrik', _currentOrder.namaPabrik, context, isLarge: true),
                 _buildRow(Icons.inventory_2_rounded, 'Jenis Barang Dimuat', _currentOrder.jenisBarang, context),
-                _buildRow(Icons.scale_rounded, 'Total Tonase Berat', '${_currentOrder.berat} Ton', context, isLarge: true),
+                _buildRow(Icons.scale_rounded, 'Total Tonase Berat', '${_currentOrder.berat / 1000} Ton', context, isLarge: true),
               ], context),
 
               _buildSection('RUTE PENGIRIMAN', [

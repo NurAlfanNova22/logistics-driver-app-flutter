@@ -175,7 +175,7 @@ class _OrdersScreenState extends State<OrdersScreen> with SingleTickerProviderSt
                       children: [
                         _detailRow(Icons.place_rounded, 'Tujuan', order.alamatTujuan, context),
                         const SizedBox(height: 10),
-                        _detailRow(Icons.scale_rounded, 'Muatan', '${order.jenisBarang} (${order.berat} ton)', context),
+                        _detailRow(Icons.scale_rounded, 'Muatan', '${order.jenisBarang} (${order.berat / 1000} Ton)', context),
                       ],
                     ),
                   ),
