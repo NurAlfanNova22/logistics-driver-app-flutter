@@ -38,11 +38,11 @@ class NotificationService {
     await _notificationsPlugin.initialize(initSettings);
     _isInit = true;
 
-    await _loadFromLocal();
+    await loadFromLocal();
     _startListening();
   }
 
-  Future<void> _loadFromLocal() async {
+  Future<void> loadFromLocal() async {
     final prefs = await SharedPreferences.getInstance();
     final String? saved = prefs.getString('saved_notifications');
     unreadCountNotifier.value = prefs.getInt('unread_count') ?? 0;
@@ -57,7 +57,7 @@ class NotificationService {
     }
   }
 
-  Future<void> _saveToLocal() async {
+  Future<void> saveToLocal() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('saved_notifications', jsonEncode(notifications));
     await prefs.setInt('unread_count', unreadCountNotifier.value);
@@ -65,7 +65,7 @@ class NotificationService {
 
   void clearUnread() {
     unreadCountNotifier.value = 0;
-    _saveToLocal();
+    saveToLocal();
   }
 
   Future<void> _startListening() async {
@@ -89,7 +89,7 @@ class NotificationService {
         // Simpan ke riwayat lokal
         notifications.insert(0, data); // Tambah di paling atas
         unreadCountNotifier.value++;
-        _saveToLocal();
+        saveToLocal();
 
         _showNotification(data['title'], data['body']);
         

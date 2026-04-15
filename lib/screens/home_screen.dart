@@ -13,9 +13,6 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-import 'notifications_screen.dart';
-import '../services/notification_service.dart';
-
 class _HomeScreenState extends State<HomeScreen>
     with SingleTickerProviderStateMixin {
   bool isOnline = false;

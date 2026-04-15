@@ -37,7 +37,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               onPressed: () {
                 setState(() {
                   NotificationService().notifications.clear();
-                  NotificationService()._saveToLocal();
+                  NotificationService().saveToLocal();
                 });
               },
               child: const Text('Hapus Semua', style: TextStyle(color: AppColors.error)),
