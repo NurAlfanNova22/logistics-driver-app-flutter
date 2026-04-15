@@ -4,14 +4,100 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../app_theme.dart';
 import '../main.dart';
 
-class ProfileScreen extends StatelessWidget {
+import '../services/api_service.dart';
+
+class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
+
+  @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
+  String name = 'Memuat...';
+  String email = 'Memuat...';
+  int? userId;
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadData();
+  }
+
+  Future<void> _loadData() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      name = prefs.getString('driver_name') ?? 'Driver Lancar';
+      email = prefs.getString('driver_email') ?? 'driver@lancar.com';
+      userId = prefs.getInt('user_id');
+      isLoading = false;
+    });
+  }
+
+  void _showEditProfile() {
+    final nameController = TextEditingController(text: name);
+    final emailController = TextEditingController(text: email);
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Edit Profil'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: nameController,
+              decoration: const InputDecoration(labelText: 'Nama Lengkap'),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: emailController,
+              decoration: const InputDecoration(labelText: 'Email'),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Batal'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              if (userId == null) return;
+              
+              final success = await ApiService.updateProfile(
+                userId!,
+                nameController.text.trim(),
+                emailController.text.trim(),
+              );
+
+              if (success && mounted) {
+                final prefs = await SharedPreferences.getInstance();
+                await prefs.setString('driver_name', nameController.text.trim());
+                await prefs.setString('driver_email', emailController.text.trim());
+                
+                _loadData();
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Profil berhasil diperbarui')),
+                );
+              }
+            },
+            child: const Text('Simpan'),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Profil Sopir')),
-      body: ListView(
+      body: isLoading 
+        ? const Center(child: CircularProgressIndicator())
+        : ListView(
         padding: const EdgeInsets.all(20),
         children: [
           // Avatar
@@ -41,7 +127,7 @@ class ProfileScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 14),
                 Text(
-                  'Driver Lancar',
+                  name,
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w700,
@@ -49,6 +135,24 @@ class ProfileScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 4),
+                Text(
+                  email,
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: context.textSecondaryColor,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                ElevatedButton.icon(
+                  onPressed: _showEditProfile,
+                  icon: const Icon(Icons.edit_rounded, size: 16),
+                  label: const Text('Edit Profil'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  ),
+                ),
+                const SizedBox(height: 8),
                 Container(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 10, vertical: 3),

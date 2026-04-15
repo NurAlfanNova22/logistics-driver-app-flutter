@@ -111,4 +111,20 @@ class ApiService {
       print('Error push checkpoint: $e');
     }
   }
+
+  // UPDATE PROFILE
+  static Future<bool> updateProfile(int userId, String name, String email) async {
+    try {
+      final response = await http.put(
+        Uri.parse("${baseUrl}driver/profile/$userId"),
+        body: {
+          "name": name,
+          "email": email,
+        },
+      );
+      return response.statusCode == 200;
+    } catch (e) {
+      return false;
+    }
+  }
 }
