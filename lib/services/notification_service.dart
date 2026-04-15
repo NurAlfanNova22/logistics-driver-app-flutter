@@ -11,6 +11,10 @@ class NotificationService {
   final DatabaseReference _dbRef = FirebaseDatabase.instance.ref();
   bool _isInit = false;
 
+  // Notification data
+  final ValueNotifier<int> unreadCountNotifier = ValueNotifier<int>(0);
+  List<Map<String, dynamic>> notifications = [];
+
   Future<void> init() async {
     if (_isInit) return;
 
@@ -32,7 +36,34 @@ class NotificationService {
     await _notificationsPlugin.initialize(initSettings);
     _isInit = true;
 
+    await _loadFromLocal();
     _startListening();
+  }
+
+  Future<void> _loadFromLocal() async {
+    final prefs = await SharedPreferences.getInstance();
+    final String? saved = prefs.getString('saved_notifications');
+    unreadCountNotifier.value = prefs.getInt('unread_count') ?? 0;
+    
+    if (saved != null) {
+      try {
+        final List<dynamic> decoded = jsonDecode(saved);
+        notifications = decoded.map((e) => Map<String, dynamic>.from(e)).toList();
+      } catch (e) {
+        notifications = [];
+      }
+    }
+  }
+
+  Future<void> _saveToLocal() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('saved_notifications', jsonEncode(notifications));
+    await prefs.setInt('unread_count', unreadCountNotifier.value);
+  }
+
+  void clearUnread() {
+    unreadCountNotifier.value = 0;
+    _saveToLocal();
   }
 
   Future<void> _startListening() async {
@@ -52,9 +83,15 @@ class NotificationService {
         .listen((event) {
       if (event.snapshot.value != null) {
         final data = Map<String, dynamic>.from(event.snapshot.value as Map);
+        
+        // Simpan ke riwayat lokal
+        notifications.insert(0, data); // Tambah di paling atas
+        unreadCountNotifier.value++;
+        _saveToLocal();
+
         _showNotification(data['title'], data['body']);
         
-        // Opsional: Hapus notifikasi dari Firebase agar tidak menumpuk
+        // Hapus dari Firebase agar tidak menumpuk
         event.snapshot.ref.remove();
       }
     });

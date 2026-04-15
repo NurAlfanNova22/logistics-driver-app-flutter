@@ -3,6 +3,8 @@ import '../services/api_service.dart';
 import '../app_theme.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'order_screen.dart';
+import 'notifications_screen.dart';
+import '../services/notification_service.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -10,6 +12,9 @@ class HomeScreen extends StatefulWidget {
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
+
+import 'notifications_screen.dart';
+import '../services/notification_service.dart';
 
 class _HomeScreenState extends State<HomeScreen>
     with SingleTickerProviderStateMixin {
@@ -97,16 +102,56 @@ class _HomeScreenState extends State<HomeScreen>
                               ),
                             ],
                           ),
-                          Container(
-                            width: 40,
-                            height: 40,
-                            decoration: BoxDecoration(
-                              color: context.surfaceColor,
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(color: context.borderColor),
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.push(context, MaterialPageRoute(builder: (_) => const NotificationsScreen()));
+                            },
+                            child: Stack(
+                              clipBehavior: Clip.none,
+                              children: [
+                                Container(
+                                  width: 40,
+                                  height: 40,
+                                  decoration: BoxDecoration(
+                                    color: context.surfaceColor,
+                                    borderRadius: BorderRadius.circular(12),
+                                    border: Border.all(color: context.borderColor),
+                                  ),
+                                  child: Icon(Icons.notifications_none_rounded,
+                                      size: 20, color: context.textSecondaryColor),
+                                ),
+                                ValueListenableBuilder<int>(
+                                  valueListenable: NotificationService().unreadCountNotifier,
+                                  builder: (context, count, _) {
+                                    if (count == 0) return const SizedBox();
+                                    return Positioned(
+                                      top: -5,
+                                      right: -5,
+                                      child: Container(
+                                        padding: const EdgeInsets.all(4),
+                                        decoration: const BoxDecoration(
+                                          color: AppColors.error,
+                                          shape: BoxShape.circle,
+                                        ),
+                                        constraints: const BoxConstraints(
+                                          minWidth: 18,
+                                          minHeight: 18,
+                                        ),
+                                        child: Text(
+                                          count > 9 ? '9+' : count.toString(),
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                          textAlign: TextAlign.center,
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ],
                             ),
-                            child: Icon(Icons.notifications_none_rounded,
-                                size: 20, color: context.textSecondaryColor),
                           ),
                         ],
                       ),
