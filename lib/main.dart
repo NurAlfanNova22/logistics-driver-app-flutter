@@ -8,6 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'services/location_service.dart';
+import 'services/notification_service.dart';
 
 import 'app_theme.dart';
 
@@ -73,6 +74,7 @@ class _MainScreenState extends State<MainScreen> {
   void initState() {
     super.initState();
     LocationService().init();
+    NotificationService().init();
   }
 
   final List<Widget> pages = const [
