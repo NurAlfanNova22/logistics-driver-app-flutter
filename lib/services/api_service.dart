@@ -49,7 +49,12 @@ class ApiService {
 
     final response = await http.post(
       Uri.parse("${baseUrl}driver/update-status/$orderId"),
+      headers: {"Accept": "application/json"},
     );
+
+    if (response.statusCode != 200) {
+       print("API UPDATE STATUS ERROR: ${response.statusCode} - ${response.body}");
+    }
 
     return response.statusCode == 200;
   }
