@@ -66,9 +66,12 @@ class _HomeScreenState extends State<HomeScreen>
       body: SafeArea(
         child: FadeTransition(
           opacity: _fadeAnimation,
-          child: CustomScrollView(
-            physics: const BouncingScrollPhysics(),
-            slivers: [
+          child: RefreshIndicator(
+            onRefresh: _getDriverStats,
+            color: AppColors.primary,
+            child: CustomScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              slivers: [
               SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(24, 28, 24, 0),
