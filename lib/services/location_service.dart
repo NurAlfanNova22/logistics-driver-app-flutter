@@ -64,7 +64,7 @@ class LocationService {
     
     const locationSettings = LocationSettings(
       accuracy: LocationAccuracy.medium,
-      distanceFilter: 200, // Update setiap 200 meter (Jalan tengah hemat baterai & akurasi)
+      distanceFilter: 500, // Kembali ke 500 meter sesuai permintaan user (Efisiensi Baterai Maksimal)
     );
 
     _positionStream?.cancel();
