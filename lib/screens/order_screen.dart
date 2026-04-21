@@ -117,7 +117,9 @@ class _OrdersScreenState extends State<OrdersScreen> with SingleTickerProviderSt
                  loadOrders(); // Refresh after confirming in detail screen
                }
             },
-            child: Container(
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 600),
+              curve: Curves.easeInOut,
               margin: const EdgeInsets.only(bottom: 14),
               decoration: BoxDecoration(
                 color: context.surfaceColor,
@@ -208,7 +210,9 @@ class _OrdersScreenState extends State<OrdersScreen> with SingleTickerProviderSt
         fg = AppColors.primary;
         text = 'MENUNGGU PICKUP';
     }
-    return Container(
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 600),
+      curve: Curves.easeInOut,
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(8)),
       child: Text(text, style: TextStyle(color: fg, fontWeight: FontWeight.w700, fontSize: 10, letterSpacing: 0.5)),

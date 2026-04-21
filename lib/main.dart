@@ -22,8 +22,21 @@ void main() async {
   runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  late Future<int?> _authFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _authFuture = SharedPreferences.getInstance().then((prefs) => prefs.getInt('sopir_id'));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -36,13 +49,15 @@ class MyApp extends StatelessWidget {
           theme: AppTheme.lightTheme,
           darkTheme: AppTheme.darkTheme,
           themeMode: themeMode,
+          themeAnimationDuration: const Duration(milliseconds: 600),
+          themeAnimationCurve: Curves.easeInOut,
           home: FutureBuilder<int?>(
-            future: SharedPreferences.getInstance().then((prefs) => prefs.getInt('sopir_id')),
+            future: _authFuture,
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return Scaffold(
                   backgroundColor: AppColors.primary,
-                  body: Center(
+                  body: const Center(
                     child: CircularProgressIndicator(color: Colors.white),
                   ),
                 );
