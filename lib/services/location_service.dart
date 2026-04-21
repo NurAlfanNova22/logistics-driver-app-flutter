@@ -32,7 +32,7 @@ class LocationService {
     try {
       final orders = await ApiService.getDriverOrders(_sopirId!);
       final activeOrder = orders.firstWhere(
-        (o) => o.statusPengiriman == 'DALAM PERJALANAN',
+        (o) => o.statusPengiriman.toUpperCase() == 'DALAM PERJALANAN',
         orElse: () => Order(id: 0, resi: '', namaPabrik: '', alamatAsal: '', alamatTujuan: '', jenisBarang: '', berat: 0, status: '', statusPengiriman: '', updatedAt: DateTime.now()),
       );
 
@@ -64,7 +64,7 @@ class LocationService {
     
     const locationSettings = LocationSettings(
       accuracy: LocationAccuracy.medium,
-      distanceFilter: 500, // Update setiap 500 meter
+      distanceFilter: 200, // Update setiap 200 meter (Jalan tengah hemat baterai & akurasi)
     );
 
     _positionStream?.cancel();
@@ -75,9 +75,13 @@ class LocationService {
       },
     );
     
-    // Initial update
-    Position? currentPos = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.medium);
-    _updateFirebase(currentPos);
+    // Initial update - Penting agar Customer tidak menunggu lama saat pesanan baru dimulai
+    try {
+      Position currentPos = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.medium);
+      _updateFirebase(currentPos);
+    } catch (e) {
+      print('Initial position fix failed: $e');
+    }
   }
 
   void stopTracking() {

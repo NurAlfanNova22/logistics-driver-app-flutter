@@ -28,7 +28,10 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
     final success = await ApiService.updateStatus(_currentOrder.id);
     if (success) {
       if (mounted) {
-        LocationService().checkAndToggleTracking(); // toggle loc tracking
+        // Tunggu sebentar agar server selesai memproses status sebelum kita fetch ulang untuk tracking
+        Future.delayed(const Duration(seconds: 1), () {
+            LocationService().checkAndToggleTracking(); 
+        });
         Navigator.pop(context, true); // kembalikan true agar layar luar me-refresh
       }
     } else {
