@@ -58,12 +58,14 @@ class _LoginScreenState extends State<LoginScreen>
         int userId = response['user']['id'];
         String name = response['user']['name'];
         String email = response['user']['email'];
+        String? foto = response['sopir']['foto'];
 
         SharedPreferences prefs = await SharedPreferences.getInstance();
         await prefs.setInt('sopir_id', sopirId);
         await prefs.setInt('user_id', userId);
         await prefs.setString('driver_name', name);
         await prefs.setString('driver_email', email);
+        if (foto != null) await prefs.setString('driver_foto', foto);
 
         Navigator.pushReplacement(
           context,
@@ -87,7 +89,9 @@ class _LoginScreenState extends State<LoginScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
+      body: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.easeInOut,
         decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topLeft,

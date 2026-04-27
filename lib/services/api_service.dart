@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:http/http.dart' as http;
 import '../models/order.dart';
 
@@ -118,15 +119,21 @@ class ApiService {
   }
 
   // UPDATE PROFILE
-  static Future<bool> updateProfile(int userId, String name, String email) async {
+  static Future<bool> updateProfile(int userId, String name, String email, {File? image}) async {
     try {
-      final response = await http.put(
-        Uri.parse("${baseUrl}driver/profile/$userId"),
-        body: {
-          "name": name,
-          "email": email,
-        },
-      );
+      var request = http.MultipartRequest('POST', Uri.parse("${baseUrl}driver/profile/$userId"));
+      
+      request.fields['name'] = name;
+      request.fields['email'] = email;
+      request.fields['_method'] = 'PUT'; // Method spoofing for Laravel
+
+      if (image != null) {
+        request.files.add(await http.MultipartFile.fromPath('foto', image.path));
+      }
+
+      var streamedResponse = await request.send();
+      var response = await http.Response.fromStream(streamedResponse);
+
       return response.statusCode == 200;
     } catch (e) {
       return false;

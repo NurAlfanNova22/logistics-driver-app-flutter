@@ -12,6 +12,7 @@ dependencies:
   firebase_core: ^4.5.0
 
   http: ^1.2.0
+  image_picker: ^1.0.7
   shared_preferences: ^2.2.3
   cupertino_icons: ^1.0.8
   firebase_database: ^12.1.4
