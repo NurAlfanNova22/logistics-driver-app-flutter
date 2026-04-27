@@ -228,9 +228,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
           const SizedBox(height: 28),
 
           // Settings
-          AnimatedContainer(
-            duration: const Duration(milliseconds: 200),
-            curve: Curves.easeInOut,
+          Container(
+
+
             decoration: BoxDecoration(
               color: context.surfaceColor,
               borderRadius: BorderRadius.circular(16),
@@ -320,9 +320,9 @@ class _SettingRow extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: Row(
         children: [
-          AnimatedContainer(
-            duration: const Duration(milliseconds: 200),
-            curve: Curves.easeInOut,
+          Container(
+
+
             width: 32,
             height: 32,
             decoration: BoxDecoration(
