@@ -139,4 +139,48 @@ class ApiService {
       return false;
     }
   }
+
+  static Future<Map<String, dynamic>> forgotPassword(String email) async {
+    try {
+      final response = await http.post(
+        Uri.parse("${baseUrl}forgot-password"),
+        body: {'email': email},
+      );
+
+      final data = jsonDecode(response.body);
+      return {
+        'success': response.statusCode == 200,
+        'message': data['message'] ?? 'Terjadi kesalahan'
+      };
+    } catch (e) {
+      return {'success': false, 'message': 'Kesalahan koneksi: $e'};
+    }
+  }
+
+  static Future<Map<String, dynamic>> resetPassword({
+    required String email,
+    required String otp,
+    required String password,
+    required String confirmPassword,
+  }) async {
+    try {
+      final response = await http.post(
+        Uri.parse("${baseUrl}reset-password"),
+        body: {
+          'email': email,
+          'otp': otp,
+          'password': password,
+          'password_confirmation': confirmPassword,
+        },
+      );
+
+      final data = jsonDecode(response.body);
+      return {
+        'success': response.statusCode == 200,
+        'message': data['message'] ?? 'Terjadi kesalahan'
+      };
+    } catch (e) {
+      return {'success': false, 'message': 'Kesalahan koneksi: $e'};
+    }
+  }
 }
