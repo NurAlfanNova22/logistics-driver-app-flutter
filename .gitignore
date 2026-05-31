@@ -47,3 +47,5 @@ app.*.map.json
 # Local properties with sensitive API keys
 **/android/local.properties
 
+# Android build directory
+/android/build/
