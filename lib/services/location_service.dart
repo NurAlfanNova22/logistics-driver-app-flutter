@@ -57,14 +57,10 @@ class LocationService {
 
     _isTracking = true;
     
-    // Konfigurasi Geolocator untuk hemat baterai
-    // Interval 15 menit = tidak bisa pakai Stream biasa jika ingin benar-benar 'tidur'
-    // Tapi untuk demonstrasi ini kita pakai Stream dengan distanceFilter tinggi.
-    // Untuk 15 menit murni, lebih baik pakai WorkManager atau Alarm Manager.
-    
+    // Konfigurasi Geolocator untuk akurasi tinggi
     const locationSettings = LocationSettings(
-      accuracy: LocationAccuracy.medium,
-      distanceFilter: 500, // Kembali ke 500 meter sesuai permintaan user (Efisiensi Baterai Maksimal)
+      accuracy: LocationAccuracy.high, // Akurasi tinggi menggunakan GPS hardware (menghindari koordinat meleset)
+      distanceFilter: 500, // Tetap 500 meter untuk efisiensi baterai
     );
 
     _positionStream?.cancel();
@@ -77,7 +73,7 @@ class LocationService {
     
     // Initial update - Penting agar Customer tidak menunggu lama saat pesanan baru dimulai
     try {
-      Position currentPos = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.medium);
+      Position currentPos = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
       _updateFirebase(currentPos);
     } catch (e) {
       print('Initial position fix failed: $e');
