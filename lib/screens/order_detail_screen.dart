@@ -93,9 +93,11 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
     );
   }
 
-  Future<void> _openMap(String address) async {
-    final query = Uri.encodeComponent(address);
-    final googleMapsUrl = Uri.parse("https://www.google.com/maps/dir/?api=1&destination=$query");
+  Future<void> _openMap(String address, String? coordinate) async {
+    final destination = coordinate != null && coordinate.trim().isNotEmpty 
+        ? coordinate 
+        : Uri.encodeComponent(address);
+    final googleMapsUrl = Uri.parse("https://www.google.com/maps/dir/?api=1&destination=$destination");
     
     try {
       if (await canLaunchUrl(googleMapsUrl)) {
@@ -216,24 +218,24 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                 _buildRow(
                   Icons.my_location_rounded,
                   'Lokasi Pengambilan (Asal)',
-                  _currentOrder.alamatAsal,
+                  _currentOrder.alamatAsalClean,
                   context,
                   trailing: IconButton(
                     icon: Icon(Icons.navigation_rounded, color: AppColors.primary),
                     tooltip: 'Navigasi ke Lokasi Asal',
-                    onPressed: () => _openMap(_currentOrder.alamatAsal),
+                    onPressed: () => _openMap(_currentOrder.alamatAsalClean, _currentOrder.alamatAsalCoordinate),
                   ),
                 ),
                 _buildRow(
                   Icons.location_on_rounded,
                   'Titik Bongkar (Tujuan)',
-                  _currentOrder.alamatTujuan,
+                  _currentOrder.alamatTujuanClean,
                   context,
                   isLarge: true,
                   trailing: IconButton(
                     icon: Icon(Icons.navigation_rounded, color: AppColors.primary),
                     tooltip: 'Navigasi ke Tujuan',
-                    onPressed: () => _openMap(_currentOrder.alamatTujuan),
+                    onPressed: () => _openMap(_currentOrder.alamatTujuanClean, _currentOrder.alamatTujuanCoordinate),
                   ),
                 ),
               ], context),
