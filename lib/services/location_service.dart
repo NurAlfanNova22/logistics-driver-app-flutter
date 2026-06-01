@@ -57,10 +57,10 @@ class LocationService {
 
     _isTracking = true;
     
-    // Konfigurasi Geolocator untuk akurasi tinggi
+    // Konfigurasi Geolocator untuk hemat baterai
     const locationSettings = LocationSettings(
-      accuracy: LocationAccuracy.high, // Akurasi tinggi menggunakan GPS hardware (menghindari koordinat meleset)
-      distanceFilter: 500, // Tetap 500 meter untuk efisiensi baterai
+      accuracy: LocationAccuracy.medium, // Hemat baterai menggunakan menara seluler/Wi-Fi
+      distanceFilter: 500, // Tetap 500 meter untuk efisiensi baterai maksimal
     );
 
     _positionStream?.cancel();
@@ -73,7 +73,7 @@ class LocationService {
     
     // Initial update - Penting agar Customer tidak menunggu lama saat pesanan baru dimulai
     try {
-      Position currentPos = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+      Position currentPos = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.medium);
       _updateFirebase(currentPos);
     } catch (e) {
       print('Initial position fix failed: $e');
