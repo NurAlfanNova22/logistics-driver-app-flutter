@@ -3,6 +3,7 @@ import '../models/order.dart';
 import '../app_theme.dart';
 import '../services/api_service.dart';
 import '../services/location_service.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class OrderDetailScreen extends StatefulWidget {
   final Order order;
@@ -92,6 +93,25 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
     );
   }
 
+  Future<void> _openMap(String address) async {
+    final query = Uri.encodeComponent(address);
+    final googleMapsUrl = Uri.parse("https://www.google.com/maps/dir/?api=1&destination=$query");
+    
+    try {
+      if (await canLaunchUrl(googleMapsUrl)) {
+        await launchUrl(googleMapsUrl, mode: LaunchMode.externalApplication);
+      } else {
+        await launchUrl(googleMapsUrl, mode: LaunchMode.platformDefault);
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Tidak dapat membuka peta: $e')),
+        );
+      }
+    }
+  }
+
   Widget _buildSection(String title, List<Widget> children, BuildContext context) {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
@@ -112,11 +132,11 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
     );
   }
 
-  Widget _buildRow(IconData icon, String label, String value, BuildContext context, {bool isLarge = false}) {
+  Widget _buildRow(IconData icon, String label, String value, BuildContext context, {bool isLarge = false, Widget? trailing}) {
      return Padding(
        padding: const EdgeInsets.only(bottom: 14),
        child: Row(
-         crossAxisAlignment: CrossAxisAlignment.start,
+         crossAxisAlignment: CrossAxisAlignment.center,
          children: [
            Container(
              margin: const EdgeInsets.only(top: 2),
@@ -135,6 +155,10 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                ],
              ),
            ),
+           if (trailing != null) ...[
+             const SizedBox(width: 8),
+             trailing,
+           ]
          ],
        ),
      );
@@ -189,8 +213,29 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
               ], context),
 
               _buildSection('RUTE PENGIRIMAN', [
-                _buildRow(Icons.my_location_rounded, 'Lokasi Pengambilan (Asal)', _currentOrder.alamatAsal, context),
-                _buildRow(Icons.location_on_rounded, 'Titik Bongkar (Tujuan)', _currentOrder.alamatTujuan, context, isLarge: true),
+                _buildRow(
+                  Icons.my_location_rounded,
+                  'Lokasi Pengambilan (Asal)',
+                  _currentOrder.alamatAsal,
+                  context,
+                  trailing: IconButton(
+                    icon: Icon(Icons.navigation_rounded, color: AppColors.primary),
+                    tooltip: 'Navigasi ke Lokasi Asal',
+                    onPressed: () => _openMap(_currentOrder.alamatAsal),
+                  ),
+                ),
+                _buildRow(
+                  Icons.location_on_rounded,
+                  'Titik Bongkar (Tujuan)',
+                  _currentOrder.alamatTujuan,
+                  context,
+                  isLarge: true,
+                  trailing: IconButton(
+                    icon: Icon(Icons.navigation_rounded, color: AppColors.primary),
+                    tooltip: 'Navigasi ke Tujuan',
+                    onPressed: () => _openMap(_currentOrder.alamatTujuan),
+                  ),
+                ),
               ], context),
               const SizedBox(height: 20),
             ],
