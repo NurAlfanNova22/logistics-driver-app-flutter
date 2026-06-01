@@ -33,7 +33,7 @@ class LocationService {
       final orders = await ApiService.getDriverOrders(_sopirId!);
       final activeOrder = orders.firstWhere(
         (o) => o.statusPengiriman.toUpperCase() == 'DALAM PERJALANAN',
-        orElse: () => Order(id: 0, resi: '', namaPabrik: '', alamatAsal: '', alamatTujuan: '', jenisBarang: '', berat: 0, status: '', statusPengiriman: '', updatedAt: DateTime.now()),
+        orElse: () => Order(id: 0, resi: '', namaPabrik: '', alamatAsal: '', alamatTujuan: '', alamatAsalClean: '', alamatTujuanClean: '', jenisBarang: '', berat: 0, status: '', statusPengiriman: '', updatedAt: DateTime.now()),
       );
 
       if (activeOrder.id != 0) {
