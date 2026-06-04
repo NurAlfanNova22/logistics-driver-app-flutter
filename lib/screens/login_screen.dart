@@ -60,12 +60,16 @@ class _LoginScreenState extends State<LoginScreen>
         String name = response['user']['name'];
         String email = response['user']['email'];
         String? foto = response['sopir']['foto'];
+        String? noHp = response['sopir']['no_hp'];
+        String? alamat = response['sopir']['alamat'];
 
         SharedPreferences prefs = await SharedPreferences.getInstance();
         await prefs.setInt('sopir_id', sopirId);
         await prefs.setInt('user_id', userId);
         await prefs.setString('driver_name', name);
         await prefs.setString('driver_email', email);
+        if (noHp != null) await prefs.setString('driver_nohp', noHp);
+        if (alamat != null) await prefs.setString('driver_alamat', alamat);
         if (foto != null) await prefs.setString('driver_foto', foto);
 
         Navigator.pushReplacement(

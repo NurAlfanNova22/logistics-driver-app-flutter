@@ -119,12 +119,14 @@ class ApiService {
   }
 
   // UPDATE PROFILE
-  static Future<bool> updateProfile(int userId, String name, String email, {File? image}) async {
+  static Future<bool> updateProfile(int userId, String name, String email, {String? noHp, String? alamat, File? image}) async {
     try {
       var request = http.MultipartRequest('POST', Uri.parse("${baseUrl}driver/profile/$userId"));
       
       request.fields['name'] = name;
       request.fields['email'] = email;
+      if (noHp != null) request.fields['no_hp'] = noHp;
+      if (alamat != null) request.fields['alamat'] = alamat;
       request.fields['_method'] = 'PUT'; // Method spoofing for Laravel
 
       if (image != null) {

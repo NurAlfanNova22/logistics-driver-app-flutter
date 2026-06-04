@@ -29,11 +29,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
     _loadData();
   }
 
+  String? noHp;
+  String? alamat;
+
   Future<void> _loadData() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
       name = prefs.getString('driver_name') ?? 'Driver Lancar';
       email = prefs.getString('driver_email') ?? 'driver@lancar.com';
+      noHp = prefs.getString('driver_nohp');
+      alamat = prefs.getString('driver_alamat');
       driverFoto = prefs.getString('driver_foto');
       userId = prefs.getInt('user_id');
       isLoading = false;
@@ -43,6 +48,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   void _showEditProfile() {
     final nameController = TextEditingController(text: name);
     final emailController = TextEditingController(text: email);
+    final noHpController = TextEditingController(text: noHp ?? '');
+    final alamatController = TextEditingController(text: alamat ?? '');
     File? selectedImage;
 
     showDialog(
@@ -91,6 +98,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     controller: emailController,
                     decoration: const InputDecoration(labelText: 'Email'),
                   ),
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: noHpController,
+                    keyboardType: TextInputType.phone,
+                    decoration: const InputDecoration(labelText: 'Nomor HP'),
+                  ),
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: alamatController,
+                    maxLines: 3,
+                    decoration: const InputDecoration(labelText: 'Alamat'),
+                  ),
                 ],
               ),
             ),
@@ -107,6 +126,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     userId!,
                     nameController.text.trim(),
                     emailController.text.trim(),
+                    noHp: noHpController.text.trim(),
+                    alamat: alamatController.text.trim(),
                     image: selectedImage,
                   );
 
@@ -114,6 +135,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     final prefs = await SharedPreferences.getInstance();
                     await prefs.setString('driver_name', nameController.text.trim());
                     await prefs.setString('driver_email', emailController.text.trim());
+                    await prefs.setString('driver_nohp', noHpController.text.trim());
+                    await prefs.setString('driver_alamat', alamatController.text.trim());
                     
                     // We can't easily get the new photo path from updateProfile boolean return, 
                     // but usually, the user knows they just uploaded a file.
@@ -226,6 +249,60 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
 
           const SizedBox(height: 28),
+
+          // Detail Kontak Card
+          Container(
+            margin: const EdgeInsets.only(bottom: 20),
+            decoration: BoxDecoration(
+              color: context.surfaceColor,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: context.borderColor),
+            ),
+            child: Column(
+              children: [
+                _SettingRow(
+                  icon: Icons.phone_rounded,
+                  label: 'Nomor HP',
+                  trailing: Text(
+                    (noHp != null && noHp!.isNotEmpty)
+                        ? noHp!
+                        : 'Belum diatur',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: (noHp != null && noHp!.isNotEmpty)
+                          ? context.textSecondaryColor
+                          : context.textMutedColor,
+                    ),
+                  ),
+                ),
+                Divider(
+                    height: 1,
+                    color: context.borderColor,
+                    indent: 56),
+                _SettingRow(
+                  icon: Icons.location_on_rounded,
+                  label: 'Alamat',
+                  trailing: SizedBox(
+                    width: 180,
+                    child: Text(
+                      (alamat != null && alamat!.isNotEmpty)
+                          ? alamat!
+                          : 'Belum diatur',
+                      textAlign: TextAlign.end,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: (alamat != null && alamat!.isNotEmpty)
+                            ? context.textSecondaryColor
+                            : context.textMutedColor,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
 
           // Settings
           Container(
