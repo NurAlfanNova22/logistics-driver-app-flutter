@@ -14,6 +14,8 @@ class Order {
   final String status;
   final String statusPengiriman;
   final DateTime updatedAt;
+  final String? customerName;
+  final String? customerNoHp;
 
   Order({
     required this.id,
@@ -30,6 +32,8 @@ class Order {
     required this.status,
     required this.statusPengiriman,
     required this.updatedAt,
+    this.customerName,
+    this.customerNoHp,
   });
 
   factory Order.fromJson(Map<String, dynamic> json) {
@@ -48,6 +52,8 @@ class Order {
       status: json["status"] ?? "",
       statusPengiriman: json["status_pengiriman"] ?? "",
       updatedAt: json["updated_at"] != null ? DateTime.parse(json["updated_at"]) : DateTime.now(),
+      customerName: json["user"] != null ? json["user"]["name"] : null,
+      customerNoHp: json["user"] != null ? json["user"]["no_hp"] : null,
     );
   }
 

@@ -114,6 +114,26 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
     }
   }
 
+  Future<void> _makePhoneCall(String phoneNumber) async {
+    final Uri launchUri = Uri(
+      scheme: 'tel',
+      path: phoneNumber,
+    );
+    try {
+      if (await canLaunchUrl(launchUri)) {
+        await launchUrl(launchUri, mode: LaunchMode.externalApplication);
+      } else {
+        await launchUrl(launchUri, mode: LaunchMode.platformDefault);
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Tidak dapat melakukan panggilan: $e')),
+        );
+      }
+    }
+  }
+
   Widget _buildSection(String title, List<Widget> children, BuildContext context) {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
@@ -210,6 +230,25 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
 
               _buildSection('INFORMASI MUATAN', [
                 _buildRow(Icons.business_rounded, 'Kustomer / Nama Pabrik', _currentOrder.namaPabrik, context, isLarge: true),
+                if (_currentOrder.customerName != null && _currentOrder.customerName!.isNotEmpty)
+                  _buildRow(
+                    Icons.person_rounded,
+                    'Nama Pemesan',
+                    _currentOrder.customerName!,
+                    context,
+                  ),
+                if (_currentOrder.customerNoHp != null && _currentOrder.customerNoHp!.isNotEmpty)
+                  _buildRow(
+                    Icons.phone_rounded,
+                    'Kontak Pemesan',
+                    _currentOrder.customerNoHp!,
+                    context,
+                    trailing: IconButton(
+                      icon: const Icon(Icons.phone_in_talk_rounded, color: AppColors.primary),
+                      tooltip: 'Hubungi Pemesan',
+                      onPressed: () => _makePhoneCall(_currentOrder.customerNoHp!),
+                    ),
+                  ),
                 _buildRow(Icons.inventory_2_rounded, 'Jenis Barang Dimuat', _currentOrder.jenisBarang, context),
                 _buildRow(Icons.scale_rounded, 'Total Tonase Berat', '${_currentOrder.berat / 1000} Ton', context, isLarge: true),
               ], context),
