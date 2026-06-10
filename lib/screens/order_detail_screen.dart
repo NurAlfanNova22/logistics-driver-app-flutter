@@ -252,7 +252,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                   ),
                 _buildRow(Icons.inventory_2_rounded, 'Jenis Barang Dimuat', _currentOrder.jenisBarang, context),
                 _buildRow(Icons.scale_rounded, 'Total Tonase Berat', '${_currentOrder.berat / 1000} Ton', context, isLarge: true),
-                if (_currentOrder.tanggalPemesanan != null)
+                if (_currentOrder.tanggalPemesanan != null && _currentOrder.tanggalPemesanan!.isNotEmpty)
                   _buildRow(
                     Icons.calendar_today_rounded,
                     'Tanggal Rencana Kirim (Preorder)',
