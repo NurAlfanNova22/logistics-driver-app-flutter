@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import '../models/order.dart';
 import '../app_theme.dart';
 import '../services/api_service.dart';
@@ -251,6 +252,20 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                   ),
                 _buildRow(Icons.inventory_2_rounded, 'Jenis Barang Dimuat', _currentOrder.jenisBarang, context),
                 _buildRow(Icons.scale_rounded, 'Total Tonase Berat', '${_currentOrder.berat / 1000} Ton', context, isLarge: true),
+                if (_currentOrder.tanggalPemesanan != null)
+                  _buildRow(
+                    Icons.calendar_today_rounded,
+                    'Tanggal Rencana Kirim (Preorder)',
+                    DateFormat('dd MMMM yyyy').format(DateTime.parse(_currentOrder.tanggalPemesanan!)),
+                    context,
+                  ),
+                if (_currentOrder.estimasiDatang != null && _currentOrder.estimasiDatang != '-')
+                  _buildRow(
+                    Icons.timelapse_rounded,
+                    'Estimasi Tiba',
+                    _currentOrder.estimasiDatang!,
+                    context,
+                  ),
               ], context),
 
               _buildSection('RUTE PENGIRIMAN', [
