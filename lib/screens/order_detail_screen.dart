@@ -1,5 +1,7 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:image_picker/image_picker.dart';
 import '../models/order.dart';
 import '../app_theme.dart';
 import '../services/api_service.dart';
@@ -18,6 +20,7 @@ class OrderDetailScreen extends StatefulWidget {
 class _OrderDetailScreenState extends State<OrderDetailScreen> {
   late Order _currentOrder;
   bool _isLoading = false;
+  File? _imageFile;
 
   @override
   void initState() {
@@ -25,9 +28,30 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
     _currentOrder = widget.order;
   }
 
-  Future<void> _updateStatus() async {
+  Future<void> _pickImage(ImageSource source) async {
+    try {
+      final picker = ImagePicker();
+      final pickedFile = await picker.pickImage(
+        source: source,
+        maxWidth: 1000,
+        maxHeight: 1000,
+        imageQuality: 80,
+      );
+      if (pickedFile != null) {
+        setState(() {
+          _imageFile = File(pickedFile.path);
+        });
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Gagal mengambil gambar: $e')),
+      );
+    }
+  }
+
+  Future<void> _updateStatus({String? filePath}) async {
     setState(() => _isLoading = true);
-    final success = await ApiService.updateStatus(_currentOrder.id);
+    final success = await ApiService.updateStatus(_currentOrder.id, filePath: filePath);
     if (success) {
       if (mounted) {
         // Tunggu sebentar agar server selesai memproses status sebelum kita fetch ulang untuk tracking
@@ -39,7 +63,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
     } else {
       if (mounted) {
         setState(() => _isLoading = false);
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Gagal Memproses Pesanan')));
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Gagal Memproses Pesanan. Harap coba lagi.')));
       }
     }
   }
@@ -65,6 +89,115 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
           );
           return;
        }
+
+       // Reset selected image file
+       _imageFile = null;
+
+       showDialog(
+         context: context,
+         barrierDismissible: false,
+         builder: (context) {
+           return StatefulBuilder(
+             builder: (context, setDialogState) {
+               return AlertDialog(
+                 title: const Text('Bukti Pengiriman 📸', style: TextStyle(fontWeight: FontWeight.bold)),
+                 content: Column(
+                   mainAxisSize: MainAxisSize.min,
+                   children: [
+                     const Text('Sopir wajib mengambil foto bukti pengiriman (barang tiba di tujuan) sebelum menandai pesanan terkirim.'),
+                     const SizedBox(height: 16),
+                     _imageFile != null
+                         ? Container(
+                             height: 150,
+                             width: double.infinity,
+                             decoration: BoxDecoration(
+                               borderRadius: BorderRadius.circular(12),
+                               border: Border.all(color: Colors.grey.shade300),
+                               image: DecorationImage(
+                                 image: FileImage(_imageFile!),
+                                 fit: BoxFit.cover,
+                               ),
+                             ),
+                           )
+                         : Container(
+                             height: 150,
+                             width: double.infinity,
+                             decoration: BoxDecoration(
+                               color: Colors.grey.shade100,
+                               borderRadius: BorderRadius.circular(12),
+                               border: Border.all(color: Colors.grey.shade300, style: BorderStyle.solid),
+                             ),
+                             child: const Center(
+                               child: Column(
+                                 mainAxisAlignment: MainAxisAlignment.center,
+                                 children: [
+                                   Icon(Icons.camera_alt_rounded, size: 40, color: Colors.grey),
+                                   SizedBox(height: 8),
+                                   Text('Belum ada foto terpilih', style: TextStyle(color: Colors.grey, fontSize: 12)),
+                                 ],
+                               ),
+                             ),
+                           ),
+                     const SizedBox(height: 16),
+                     Row(
+                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                       children: [
+                         ElevatedButton.icon(
+                           onPressed: () async {
+                             await _pickImage(ImageSource.camera);
+                             setDialogState(() {});
+                           },
+                           icon: const Icon(Icons.camera_alt_rounded, size: 18),
+                           label: const Text('Kamera'),
+                           style: ElevatedButton.styleFrom(
+                             backgroundColor: AppColors.primary,
+                             foregroundColor: Colors.white,
+                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                           ),
+                         ),
+                         ElevatedButton.icon(
+                           onPressed: () async {
+                             await _pickImage(ImageSource.gallery);
+                             setDialogState(() {});
+                           },
+                           icon: const Icon(Icons.photo_library_rounded, size: 18),
+                           label: const Text('Galeri'),
+                           style: ElevatedButton.styleFrom(
+                             backgroundColor: Colors.grey.shade600,
+                             foregroundColor: Colors.white,
+                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                           ),
+                         ),
+                       ],
+                     ),
+                   ],
+                 ),
+                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                 actions: [
+                   TextButton(
+                     onPressed: () => Navigator.pop(context),
+                     child: Text('Batal', style: TextStyle(color: context.textSecondaryColor)),
+                   ),
+                   ElevatedButton(
+                     onPressed: _imageFile == null
+                         ? null
+                         : () {
+                             Navigator.pop(context);
+                             _updateStatus(filePath: _imageFile!.path);
+                           },
+                     style: ElevatedButton.styleFrom(
+                       backgroundColor: AppColors.primary,
+                       disabledBackgroundColor: Colors.grey.shade300,
+                     ),
+                     child: const Text('Kirim & Selesaikan', style: TextStyle(color: Colors.white)),
+                   ),
+                 ],
+               );
+             },
+           );
+         },
+       );
+       return;
     }
 
     final action = _currentOrder.statusPengiriman == 'MENUNGGU PICKUP'

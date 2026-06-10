@@ -46,18 +46,39 @@ class ApiService {
   }
 
   // UPDATE STATUS
-  static Future<bool> updateStatus(int orderId) async {
+  static Future<bool> updateStatus(int orderId, {String? filePath}) async {
+    if (filePath != null) {
+      try {
+        var request = http.MultipartRequest(
+          'POST',
+          Uri.parse("${baseUrl}driver/update-status/$orderId"),
+        );
+        request.headers.addAll({"Accept": "application/json"});
+        request.files.add(await http.MultipartFile.fromPath('bukti_pengiriman', filePath));
+        
+        var streamedResponse = await request.send();
+        var response = await http.Response.fromStream(streamedResponse);
+        
+        if (response.statusCode != 200) {
+           print("API UPDATE STATUS ERROR: ${response.statusCode} - ${response.body}");
+        }
+        return response.statusCode == 200;
+      } catch (e) {
+        print("API UPDATE STATUS ERROR: $e");
+        return false;
+      }
+    } else {
+      final response = await http.post(
+        Uri.parse("${baseUrl}driver/update-status/$orderId"),
+        headers: {"Accept": "application/json"},
+      );
 
-    final response = await http.post(
-      Uri.parse("${baseUrl}driver/update-status/$orderId"),
-      headers: {"Accept": "application/json"},
-    );
+      if (response.statusCode != 200) {
+         print("API UPDATE STATUS ERROR: ${response.statusCode} - ${response.body}");
+      }
 
-    if (response.statusCode != 200) {
-       print("API UPDATE STATUS ERROR: ${response.statusCode} - ${response.body}");
+      return response.statusCode == 200;
     }
-
-    return response.statusCode == 200;
   }
 
   // DRIVER STATS
