@@ -18,6 +18,7 @@ class Order {
   final String? customerNoHp;
   final String? tanggalPemesanan;
   final String? estimasiDatang;
+  final String? buktiPengiriman;
 
   Order({
     required this.id,
@@ -38,6 +39,7 @@ class Order {
     this.customerNoHp,
     this.tanggalPemesanan,
     this.estimasiDatang,
+    this.buktiPengiriman,
   });
 
   factory Order.fromJson(Map<String, dynamic> json) {
@@ -60,6 +62,7 @@ class Order {
       customerNoHp: json["user"] != null ? json["user"]["no_hp"] : null,
       tanggalPemesanan: json["tanggal_pemesanan"],
       estimasiDatang: json["estimasi_datang"],
+      buktiPengiriman: json["bukti_pengiriman_url"] ?? json["bukti_pengiriman"],
     );
   }
 
